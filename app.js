@@ -12,11 +12,11 @@ import routes from './routes/index';
 import limiter from './middlewares/rateLimit';
 import corsOptions from './utils/corsOptions';
 
-const { PORT = 3000, DB_PATH } = process.env;
+const { PORT = 3000, NODE_ENV, DB_PATH } = process.env;
 
 const app = express();
 
-mongoose.connect(DB_PATH);
+mongoose.connect(`${NODE_ENV === 'production' ? DB_PATH : 'mongodb://localhost:27017/moviesdb'}`);
 
 app.use(cors(corsOptions));
 
