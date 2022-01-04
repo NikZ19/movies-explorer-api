@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import { errors } from 'celebrate';
 import error from './middlewares/error';
 import { requestLogger, errorLogger } from './middlewares/logger';
 import routes from './routes/index';
@@ -33,6 +34,7 @@ app.use('/', routes);
 
 app.use(errorLogger);
 
+app.use(errors());
 app.use(error);
 
 app.listen(PORT);
