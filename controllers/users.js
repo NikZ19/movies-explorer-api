@@ -17,11 +17,11 @@ const createUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные'));
-      }
-      if (err.code === 11000) {
+      } else if (err.code === 11000) {
         next(new ConflictError('Email занят'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -31,8 +31,7 @@ const login = (req, res, next) => {
   return User.findUserByCreditionals(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'some-key', { expiresIn: '7d' });
-      // res.status(200).send({ token });
-      res.status(200).cookie('jwt', token, {
+      res.cookie('jwt', token, {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
       })
@@ -51,7 +50,7 @@ const signout = (req, res) => {
 
 const getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
-    .then((user) => res.status(200).send({ email: user.email, name: user.name }))
+    .then((user) => res.send({ email: user.email, name: user.name }))
     .catch(next);
 };
 
@@ -66,12 +65,18 @@ const updateUser = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Пользователь не найден!');
       }
-      return res.status(200).send({
+      return res.send({
         email: user.email,
         name: user.name,
       });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.code === 11000) {
+        next(new ConflictError('Email занят'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 export {

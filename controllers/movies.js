@@ -6,7 +6,7 @@ import Movie from '../models/movie';
 
 const getSavedMovies = (req, res, next) => {
   Movie.find({ owner: req.user._id })
-    .then((movies) => res.status(200).send(movies))
+    .then((movies) => res.send(movies))
     .catch(next);
 };
 
@@ -42,7 +42,7 @@ const removeMovie = (req, res, next) => {
         throw new ForbiddenError('Нелья удалить чужой фильм!');
       }
       return movie.remove()
-        .then((removedMovie) => res.status(200).send({ data: removedMovie }));
+        .then((removedMovie) => res.send({ data: removedMovie }));
     })
     .catch(next);
 };
